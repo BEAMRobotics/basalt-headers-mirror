@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 
 #include "gtest/gtest.h"
-#include "test_utils.h"
+#include "basalt/utils/test_utils.h"
 
 namespace basalt::constants {
 static const Eigen::Vector3d G(0, 0, -9.81);
@@ -752,4 +752,10 @@ TEST(ImuPreintegrationTestCase, ComputeSqrtCovInv) {
       << "cov_inv_computed\n"
       << cov_inv_computed << "\ncov_inv_gt\n"
       << cov_inv_gt;
+}
+
+int main(int argc, char** argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
