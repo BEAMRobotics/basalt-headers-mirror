@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sophus/sim2.hpp>
 
 #include "gtest/gtest.h"
-#include "test_utils.h"
+#include "basalt/utils/test_utils.h"
 
 TEST(SophusUtilsCase, RightJacobianSO3) {
   Eigen::Vector3d phi;
@@ -564,4 +564,10 @@ TEST(SophusUtilsCase, RelPoseTestRightIncSim3) {
         },
         x0);
   }
+}
+
+int main(int argc, char** argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

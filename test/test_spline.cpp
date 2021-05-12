@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 
 #include "gtest/gtest.h"
-#include "test_utils.h"
+#include "basalt/utils/test_utils.h"
 
 template <int DIM, int N, int DERIV>
 void testEvaluate(const basalt::RdSpline<DIM, N> &spline, int64_t t_ns) {
@@ -754,4 +754,10 @@ TEST(SplineTest, CrossProductTest) {
         return (J_1 * v1).cross(J_2 * (v2 + x));
       },
       Eigen::Vector3d::Zero());
+}
+
+int main(int argc, char** argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

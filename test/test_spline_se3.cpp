@@ -35,7 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 
 #include "gtest/gtest.h"
-#include "test_utils.h"
+#include "basalt/utils/test_utils.h"
 
 template <int N>
 void testGyroRes(const basalt::Se3Spline<N> &s, int64_t t_ns) {
@@ -365,4 +365,10 @@ TEST(SplineSE3, PoseTest) {
   for (int64_t t_ns = offset; t_ns < s.maxTimeNs() - offset; t_ns += 1e8) {
     testPose<N>(s, t_ns);
   }
+}
+
+int main(int argc, char** argv)
+{
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
