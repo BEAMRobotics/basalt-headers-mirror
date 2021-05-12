@@ -1,76 +1,145 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
+project(basalt)
 
-include("cmake_modules/PreProjectWorkarounds.cmake")
+find_package(catkin REQUIRED roslint)
+find_package(Ceres REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(sophus REQUIRED)
 
-project(basalt-headers)
+catkin_package(
+  INCLUDE_DIRS
+    include
+  LIBRARIES
+    ${PROJECT_NAME}
+  CATKIN_DEPENDS
+  DEPENDS
+    CERES
+    EIGEN3
+    sophus
+)
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/" ${CMAKE_MODULE_PATH})
+set(ROSLINT_CPP_OPTS "--filter=-build/c++14,-runtime/references")
+roslint_cpp()
 
-if (NOT CMAKE_C_COMPILER_LAUNCHER AND NOT CMAKE_CXX_COMPILER_LAUNCHER)
-  find_program(CCACHE_PROGRAM ccache)
-  if(CCACHE_PROGRAM)
-    message(STATUS "Found ccache: ${CCACHE_PROGRAM}")
-    set(CMAKE_C_COMPILER_LAUNCHER   ${CCACHE_PROGRAM})
-    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
-  else()
-    message(STATUS "Dind't find ccache")
-  endif()
-else()
-  message(STATUS "Compiler launcher already set. Not configuring ccache.")
-  message(STATUS "CMAKE_C_COMPILER_LAUNCHER: ${CMAKE_C_COMPILER_LAUNCHER}")
-  message(STATUS "CMAKE_CXX_COMPILER_LAUNCHER: ${CMAKE_CXX_COMPILER_LAUNCHER}")
+###########
+## Build ##
+###########
+add_compile_options(-Wall -Werror)
+
+## Declare a C++ library
+add_library(${PROJECT_NAME}
+  #src/calibration.cpp
+  #src/camera.cpp
+  #src/image.cpp
+  src/imu.cpp
+  src/spline.cpp
+)
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+    include
+    ${catkin_INCLUDE_DIRS}
+    ${CERES_INCLUDE_DIRS}
+    ${EIGEN3_INCLUDE_DIRS}
+)
+target_link_libraries(${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+  ${CERES_LIBRARIES}
+)
+set_target_properties(${PROJECT_NAME}
+  PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED YES
+)
+
+#############
+## Install ##
+#############
+
+## Mark executables and/or libraries for installation
+install(
+  TARGETS
+    ${PROJECT_NAME}
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+## Mark cpp header files for installation
+install(
+  DIRECTORY
+    include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+)
+
+#############
+## Testing ##
+#############
+
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+
+  # Lint tests
+  roslint_add_test()
+
+  # Preintegration tests
+  catkin_add_gtest(test_preintegration
+    test/test_preintegration.cpp
+  )
+  target_link_libraries(test_preintegration
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_preintegration
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Sophus tests
+  catkin_add_gtest(test_sophus
+    test/test_sophus.cpp
+  )
+  target_link_libraries(test_sophus
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_sophus
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Spline SE3 tests
+  catkin_add_gtest(test_spline_se3
+    test/test_spline_se3.cpp
+  )
+  target_link_libraries(test_spline_se3
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_spline_se3
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
+
+  # Spline tests
+  catkin_add_gtest(test_spline
+    test/test_spline.cpp
+  )
+  target_link_libraries(test_spline
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${CERES_LIBRARIES}
+  )
+  set_target_properties(test_spline
+    PROPERTIES
+      CXX_STANDARD 14
+      CXX_STANDARD_REQUIRED YES
+  )
 endif()
-
-IF( NOT CMAKE_BUILD_TYPE )
-   SET( CMAKE_BUILD_TYPE Release)
-ENDIF()
-
-IF(NOT CXX_MARCH)
-   SET(CXX_MARCH native)
-ENDIF()
-
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-
-# clang-specific compile flags
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-  set(BASALT_HEADERS_CXX_FLAGS "${BASALT_HEADERS_CXX_FLAGS} -Wno-exceptions -fcolor-diagnostics -frelaxed-template-template-args -Wno-error=deprecated-declarations")
-
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 10)
-    # These are disabled to avoid lot's of warnings in Eigen code with clang 10
-    set(BASALT_HEADERS_CXX_FLAGS "${BASALT_HEADERS_CXX_FLAGS} -Wno-error=misleading-indentation")
-  endif()
-else()
-  set(BASALT_HEADERS_CXX_FLAGS "${BASALT_HEADERS_CXX_FLAGS} -Wno-error=maybe-uninitialized")
-endif()
-
-
-set(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g -DEIGEN_INITIALIZE_MATRICES_BY_NAN")          # cmake default: "-g"
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g -DEIGEN_INITIALIZE_MATRICES_BY_NAN")  # cmake default: "-O2 -g -DNDEBUG"
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")                                      # cmake default: "-O3 -DNDEBUG"
-SET(CMAKE_CXX_FLAGS "-Wall -Werror -Wextra -march=${CXX_MARCH} ${CMAKE_CXX_FLAGS} ${BASALT_HEADERS_CXX_FLAGS}")
-SET(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_DEBUG} --coverage -fno-inline -fno-inline-small-functions -fno-default-inline")
-SET(CMAKE_EXE_LINKER_FLAGS_COVERAGE "${CMAKE_EXE_LINKER_FLAGS_DEBUG} --coverage")
-SET(CMAKE_SHARED_LINKER_FLAGS_COVERAGE "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} --coverage")
-set(CMAKE_CXX_FLAGS_SANITIZERDEBUG "-O0 -g0 -DEIGEN_INITIALIZE_MATRICES_BY_NAN -fno-omit-frame-pointer -fsanitize=address,undefined")
-set(CMAKE_CXX_FLAGS_SANITIZERRELWITHDEBINFO "-O3 -g0 -DEIGEN_INITIALIZE_MATRICES_BY_NAN -fno-omit-frame-pointer -fsanitize=address,undefined")
-
-
-set(EIGEN_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/eigen")
-set(EIGEN_INCLUDE_DIR_HINTS ${EIGEN_ROOT})
-find_package(Eigen3 3.3.7 REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIR})
-message(STATUS "Found Eigen headers in: ${EIGEN3_INCLUDE_DIR}")
-
-include_directories(thirdparty/Sophus)
-include_directories(thirdparty/cereal/include)
-include_directories(include)
-
-enable_testing()
-add_subdirectory(test)
-
-
-
