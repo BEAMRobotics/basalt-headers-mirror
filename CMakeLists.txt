@@ -4,7 +4,6 @@ project(basalt)
 find_package(catkin REQUIRED roslint)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
-find_package(sophus REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -15,7 +14,6 @@ catkin_package(
   DEPENDS
     CERES
     EIGEN3
-    sophus
 )
 
 set(ROSLINT_CPP_OPTS "--filter=-build/c++14,-runtime/references")
@@ -78,6 +76,7 @@ install(
 #############
 
 if(CATKIN_ENABLE_TESTING)
+  find_package(roslint REQUIRED)
   find_package(rostest REQUIRED)
 
   # Lint tests

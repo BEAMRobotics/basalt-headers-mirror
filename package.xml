@@ -14,7 +14,6 @@
 
   <depend>libceres-dev</depend>
   <depend>eigen</depend>
-  <depend>sophus</depend>
 
   <test_depend>rostest</test_depend>
 </package>
