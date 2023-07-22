@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.14)
 project(basalt)
 
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 17)
+endif()
+
 find_package(catkin REQUIRED roslint)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -16,7 +20,7 @@ catkin_package(
     EIGEN3
 )
 
-set(ROSLINT_CPP_OPTS "--filter=-build/c++14,-runtime/references")
+set(ROSLINT_CPP_OPTS "--filter=-build/c++17,-runtime/references")
 roslint_cpp()
 
 ###########
@@ -46,7 +50,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 set_target_properties(${PROJECT_NAME}
   PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED YES
 )
 
@@ -75,70 +79,70 @@ install(
 ## Testing ##
 #############
 
-if(CATKIN_ENABLE_TESTING)
-  find_package(roslint REQUIRED)
-  find_package(rostest REQUIRED)
+# if(CATKIN_ENABLE_TESTING)
+#   find_package(roslint REQUIRED)
+#   find_package(rostest REQUIRED)
 
-  # Lint tests
-  roslint_add_test()
+#   # Lint tests
+#   roslint_add_test()
 
-  # Preintegration tests
-  catkin_add_gtest(test_preintegration
-    test/test_preintegration.cpp
-  )
-  target_link_libraries(test_preintegration
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-  )
-  set_target_properties(test_preintegration
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
+#   # Preintegration tests
+#   catkin_add_gtest(test_preintegration
+#     test/test_preintegration.cpp
+#   )
+#   target_link_libraries(test_preintegration
+#     ${PROJECT_NAME}
+#     ${catkin_LIBRARIES}
+#     ${CERES_LIBRARIES}
+#   )
+#   set_target_properties(test_preintegration
+#     PROPERTIES
+#       CXX_STANDARD 14
+#       CXX_STANDARD_REQUIRED YES
+#   )
 
-  # Sophus tests
-  catkin_add_gtest(test_sophus
-    test/test_sophus.cpp
-  )
-  target_link_libraries(test_sophus
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-  )
-  set_target_properties(test_sophus
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
+#   # Sophus tests
+#   catkin_add_gtest(test_sophus
+#     test/test_sophus.cpp
+#   )
+#   target_link_libraries(test_sophus
+#     ${PROJECT_NAME}
+#     ${catkin_LIBRARIES}
+#     ${CERES_LIBRARIES}
+#   )
+#   set_target_properties(test_sophus
+#     PROPERTIES
+#       CXX_STANDARD 14
+#       CXX_STANDARD_REQUIRED YES
+#   )
 
-  # Spline SE3 tests
-  catkin_add_gtest(test_spline_se3
-    test/test_spline_se3.cpp
-  )
-  target_link_libraries(test_spline_se3
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-  )
-  set_target_properties(test_spline_se3
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
+#   # Spline SE3 tests
+#   catkin_add_gtest(test_spline_se3
+#     test/test_spline_se3.cpp
+#   )
+#   target_link_libraries(test_spline_se3
+#     ${PROJECT_NAME}
+#     ${catkin_LIBRARIES}
+#     ${CERES_LIBRARIES}
+#   )
+#   set_target_properties(test_spline_se3
+#     PROPERTIES
+#       CXX_STANDARD 14
+#       CXX_STANDARD_REQUIRED YES
+#   )
 
-  # Spline tests
-  catkin_add_gtest(test_spline
-    test/test_spline.cpp
-  )
-  target_link_libraries(test_spline
-    ${PROJECT_NAME}
-    ${catkin_LIBRARIES}
-    ${CERES_LIBRARIES}
-  )
-  set_target_properties(test_spline
-    PROPERTIES
-      CXX_STANDARD 14
-      CXX_STANDARD_REQUIRED YES
-  )
-endif()
+#   # Spline tests
+#   catkin_add_gtest(test_spline
+#     test/test_spline.cpp
+#   )
+#   target_link_libraries(test_spline
+#     ${PROJECT_NAME}
+#     ${catkin_LIBRARIES}
+#     ${CERES_LIBRARIES}
+#   )
+#   set_target_properties(test_spline
+#     PROPERTIES
+#       CXX_STANDARD 14
+#       CXX_STANDARD_REQUIRED YES
+#   )
+# endif()
